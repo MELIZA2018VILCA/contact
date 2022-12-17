@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1042327209554",
+    "project_id": "codigo-task-b5b9d",
+    "storage_bucket": "codigo-task-b5b9d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1042327209554:android:444b4c9e3e4cd52064818b",
+        "android_client_info": {
+          "package_name": "comlivecode.tasks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1042327209554-fr0b4sstobofqjb4gelha4u0gpve9n8s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBWEpYi8U12vxONjqGDCGwzALK_L8t4xQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1042327209554-fr0b4sstobofqjb4gelha4u0gpve9n8s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
