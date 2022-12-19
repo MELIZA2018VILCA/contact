@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contact/widgets/my_snackbar.dart';
 import 'package:flutter/material.dart';
+// paquete para lanzar las llamadas
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePageController {
   // context de nuestro "home page"
@@ -16,6 +19,8 @@ class HomePageController {
   late String userName = '';
   // referencide a nuestra colleccion contacto de Firebase
   late CollectionReference contactReferences;
+//
+  Future<void>? _launched;
 
   // controladores de los inputs para agregar un contacto
   final nombreUser = TextEditingController();
@@ -55,18 +60,29 @@ class HomePageController {
 
     if (nombre.isEmpty || telefono.isEmpty || email.isEmpty) {
       // widget personalizado quemuestra los mensajes en una ventana flotante
-      MySnackbar.show(context, 'Todos los campos son obligatorios');
+      Flushbar(
+        backgroundColor: Colors.red,
+        message: 'Todos los campos son obligatorios',
+        duration: Duration(seconds: 3),
+      ).show(context);
       return false;
     }
 
     if (telefono.length != 9) {
-      MySnackbar.show(
-          context, 'El telefono debe contener 9 caracteres numéricos');
+      Flushbar(
+        backgroundColor: Colors.red,
+        message: 'El telefono debe contener 9 caracteres numéricos',
+        duration: Duration(seconds: 3),
+      ).show(context);
       return false;
     }
 
     if (!email.contains('@')) {
-      MySnackbar.show(context, 'Debe ingresar un email valido');
+      Flushbar(
+        backgroundColor: Colors.red,
+        message: 'Debe ingresar un email valido',
+        duration: Duration(seconds: 3),
+      ).show(context);
       return false;
     }
 
@@ -80,22 +96,38 @@ class HomePageController {
 
     try {
       final value = await contactReferences.add(datos);
-      inspect(value);
+      // inspect(value);
       reiniciarFormulario();
       return true;
     } on Exception catch (e) {
       inspect(e);
       return false;
     }
-
     // log(nombre);
     // log(telefono);
     // log(email);
+  }
+
+  Future<bool> eliminarContacto(String id) async {
+    try {
+      await contactReferences.doc(id).delete();
+      MySnackbar.show(context, 'Documento eliminado', isSuccess: true);
+      return true;
+    } on Exception catch (e) {
+      // print(e);
+      MySnackbar.show(context, 'No see pudo eliminar el contacto');
+      return false;
+    }
   }
 
   void reiniciarFormulario() {
     nombreUser.text = '';
     emailUser.text = '';
     telefonoUser.text = '';
+  }
+
+// funcion que  invoca las llamadas
+  void llamar(String telefono) {
+    launchUrl(Uri(scheme: 'tel', path: telefono.toString()));
   }
 }

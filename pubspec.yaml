@@ -41,6 +41,8 @@ dependencies:
   gap: ^2.0.1
   firebase_auth_web: ^5.2.1
   firebase_storage_web: ^3.3.17
+  another_flushbar: ^1.12.29
+  url_launcher: ^6.1.7
 
 dev_dependencies:
   flutter_test:
