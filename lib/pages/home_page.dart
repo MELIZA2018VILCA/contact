@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contact/pages/home_page_controller.dart';
 import 'package:flutter/cupertino.dart';
@@ -86,34 +87,105 @@ class _HomePageState extends State<HomePage> {
               List<Map<String, dynamic>> docMap = docs.map((e) {
                 return e.data() as Map<String, dynamic>;
               }).toList();
-              inspect(docMap);
               return ListView.builder(
                 itemCount: docMap.length,
                 itemBuilder: ((context, int i) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue[100],
-                      foregroundColor: Colors.indigo,
-                      child: Text(
-                        docMap[i]['nombre'].substring(0, 2),
+                  return Dismissible(
+                    key: Key(snapshot.data.docs[i].reference.id.toString()),
+                    background: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: const [
+                              Color.fromARGB(255, 229, 145, 145),
+                              // Color(0xffCC527A),
+                              // Color(0xffE8175D),
+                              Color.fromARGB(255, 221, 42, 42),
+                              Color.fromARGB(255, 236, 7, 7),
+                            ],
+                            // stops: [0.4, 0.6],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 30.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: const [
+                            Text(
+                              'Eliminar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 20.0),
+                            Icon(
+                              Icons.delete_forever,
+                              color: Colors.white,
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                    title: Text(
-                      docMap[i]['nombre'].toString().toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
+                    confirmDismiss: (_) {
+                      return showCupertinoDialog(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoAlertDialog(
+                              title: Text('Eliminar Contacto 🙀'),
+                              content: Text(
+                                  'Un contacto eliminado no podra ser recuperado.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, false);
+                                  },
+                                  child: Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    log('documento eliminado: ${snapshot.data.docs[i].reference.id.toString()}');
+                                    // bool respuesta =
+                                    //     await controlador.crearUsuarioDelivery(
+                                    //         usuario.id as String);
+                                    // Navigator.pop(context, respuesta);
+                                    // if (respuesta == true) {
+                                    //   refresh();
+                                    // }
+                                    Navigator.pop(context, true);
+                                  },
+                                  child: Text('Elimnar'),
+                                ),
+                              ],
+                            );
+                          });
+                    },
+                    direction: DismissDirection.endToStart,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue[100],
+                        foregroundColor: Colors.indigo,
+                        child: Text(
+                          docMap[i]['nombre'].substring(0, 2),
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      color: Colors.green,
-                      icon: Icon(
-                        CupertinoIcons.phone_arrow_right,
+                      title: Text(
+                        docMap[i]['nombre'].toString().toUpperCase(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      onPressed: () {
-                        log(docMap[i]['telefono']);
-                      },
+                      trailing: IconButton(
+                        color: Colors.green,
+                        icon: Icon(
+                          CupertinoIcons.phone_arrow_right,
+                        ),
+                        onPressed: () {
+                          log(docMap[i]['telefono']);
+                        },
+                      ),
                     ),
                   );
                 }),
@@ -126,9 +198,74 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: IconButton(
-            onPressed: () {
-              log('añadir contacto');
-            },
+            onPressed: () => showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: AlertDialog(
+                      scrollable: true,
+                      title: Text('Login'),
+                      content: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Form(
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: controlador.nombreUser,
+                                decoration: InputDecoration(
+                                  labelText: 'Nombre',
+                                  icon: Icon(Icons.account_box),
+                                ),
+                              ),
+                              TextField(
+                                keyboardType: TextInputType.emailAddress,
+                                controller: controlador.emailUser,
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  icon: Icon(Icons.email),
+                                ),
+                              ),
+                              TextField(
+                                keyboardType: TextInputType.phone,
+                                controller: controlador.telefonoUser,
+                                decoration: InputDecoration(
+                                  labelText: 'teléfono',
+                                  icon: Icon(Icons.phone),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text(
+                            'Cancelar',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            bool respuesta =
+                                await controlador.agregarContacto();
+                            // bool respuesta =
+                            //     await controlador.crearUsuarioDelivery(
+                            //         usuario.id as String);
+                            if (respuesta == true) {
+                              Navigator.pop(context);
+                              // refresh();
+                            }
+                          },
+                          child: Text('Confirmar'),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
             icon: Icon(
               CupertinoIcons.add_circled,
             )),
